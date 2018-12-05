@@ -1,8 +1,17 @@
 const Blockchain = require('./blockchain');
 
-const Ephemerum = new Blockchain;
-Ephemerum.createNewBlock(3783, 'SDLFKN4JNSFDI9', '43OU5HEJFG943THGEH');
-Ephemerum.createNewBlock(345, 'DKLFN3489GBEFRI', 'LKDSNF48HBFIREGH9');
-Ephemerum.createNewBlock(2463, 'DSLGKN3P49TNFSPDK', 'EWKLN34905390HNKW');
+const ephemerum = new Blockchain;
 
-console.log(Ephemerum);
+ephemerum.createNewBlock(49855, 'DSJF34U5RT349', '34095UB34345H');
+
+ephemerum.createNewTransaction(100, 'ALEXU3434HBF4DSFJN', 'JENIH34T3948GB89GV');
+
+ephemerum.createNewBlock(4920, 'LKDF94HTP4WIGH9W4', 'DNF483TGUBFG3498GT');
+
+ephemerum.createNewTransaction(50, 'ALEXU3434HBF4DSFJN', 'JENIH34T3948GB89GV');
+ephemerum.createNewTransaction(300, 'ALEXU3434HBF4DSFJN', 'JENIH34T3948GB89GV');
+ephemerum.createNewTransaction(2000, 'ALEXU3434HBF4DSFJN', 'JENIH34T3948GB89GV');
+
+ephemerum.createNewBlock(43467, 'DFN34058TH4GGH', '34098Y34509G3H4');
+
+console.log(ephemerum.chain[2]);

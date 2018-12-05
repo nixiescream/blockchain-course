@@ -35,6 +35,10 @@ class Blockchain {
 
         return this.getLastBlock()['index'] + 1;
     }
+
+    hashBlock(blockData) {
+
+    }
 }
 
 module.exports = Blockchain;
