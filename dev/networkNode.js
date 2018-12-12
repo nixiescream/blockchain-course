@@ -54,17 +54,31 @@ app.post('/register-and-broadcast-network', (req, res) => {
             json: true
         };
 
-        regNodesPromises.push(rp(requestOptions))
+        regNodesPromises.push(rp(requestOptions));
     });
 
     Promise.all(regNodesPromises)
-        .then(data => {
+        .then(() => {
+            const bulkRegisterOptions = {
+                uri: newNodeURL + '/register-nodes-bulk',
+                method: 'POST',
+                body: { allNetworkNodes: [...ephemerum.networkNodes, ephemerum.currentNodeURL] },
+                json: true
+            };
 
+            return rp(bulkRegisterOptions);
+        })
+        .then(() => {
+            res.json({ note: `New node registered with network successfully.` });
         });
 });
 
 app.post('/register-node', (req, res) => {
-
+    const newNodeURL = req.body.newNodeURL;
+    const nodeNotAlreadyPresent = ephemerum.networkNodes.indexOf(newNodeURL) === -1;
+    const notCurrentNode = ephemerum.currentNodeURL !== newNodeURL;
+    if(nodeNotAlreadyPresent && notCurrentNode) ephemerum.networkNodes.push(newNodeURL);
+    res.json({ note: `New node registered successfully.` });
 });
 
 app.post('/register-nodes-bulk', (req, res) => {
