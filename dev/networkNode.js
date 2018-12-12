@@ -82,7 +82,14 @@ app.post('/register-node', (req, res) => {
 });
 
 app.post('/register-nodes-bulk', (req, res) => {
+    const allNetworkNodes = req.body.allNetworkNodes;
+    allNetworkNodes.forEach(networkNodeURL => {
+        const nodeNotAlreadyPresent = ephemerum.networkNodes.indexOf(networkNodeURL) === -1;
+        const notCurrentNode = ephemerum.currentNodeURL !== newNodeURL;
+        if(nodeNotAlreadyPresent && notCurrentNode) ephemerum.networkNodes.push(networkNodeURL);
+    });
 
+    res.json({ note: `Bulk registration successful.` });
 });
 
 app.listen(port, () => {
