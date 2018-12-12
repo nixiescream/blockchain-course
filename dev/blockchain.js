@@ -1,9 +1,12 @@
 const sha256 = require('sha256');
+const currentNodeURL = process.argv[3];
 
 class Blockchain {
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
+        this.currentNodeURL = currentNodeURL;
+        this.networkNodes = [];
         this.createNewBlock(93833, '0', '0');
     }
 
@@ -51,7 +54,6 @@ class Blockchain {
         while(hash.substring(0, 4) !== '0000'){
             nonce++;
             hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-            console.log(hash);
         }
 
         return nonce;
