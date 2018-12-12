@@ -13,8 +13,8 @@ app.get('/blockchain', (req, res) => {
 });
 
 app.post('/transaction', (req, res) => {
-    console.log(req.body);
-    res.send(`The amount of this transaction is ${req.body.amount} EPH`);
+    const blockIndex = ephemerum.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+    res.json({note: `Transaction will be added in block ${blockIndex}.`});
 });
 
 app.get('/mine', (req, res) => {
