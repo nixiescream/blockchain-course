@@ -85,7 +85,7 @@ app.post('/register-nodes-bulk', (req, res) => {
     const allNetworkNodes = req.body.allNetworkNodes;
     allNetworkNodes.forEach(networkNodeURL => {
         const nodeNotAlreadyPresent = ephemerum.networkNodes.indexOf(networkNodeURL) === -1;
-        const notCurrentNode = ephemerum.currentNodeURL !== newNodeURL;
+        const notCurrentNode = ephemerum.currentNodeURL !== networkNodeURL;
         if(nodeNotAlreadyPresent && notCurrentNode) ephemerum.networkNodes.push(networkNodeURL);
     });
 
