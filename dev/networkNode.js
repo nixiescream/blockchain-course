@@ -163,6 +163,27 @@ app.post('/register-nodes-bulk', (req, res) => {
     res.json({ note: `Bulk registration successful.` });
 });
 
+app.get('/consensus', (req, res) => {
+    const requestPromises = [];
+    ephemerum.networkNodes.forEach(networkNodeURL => {
+        const requestOptions = {
+            uri: networkNodeURL + '/blockchain',
+            method: 'GET',
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises)
+    .then(blockchains => {
+        const currentChainLength = ephemerum.chain.length;
+        blockchains.forEach(blockchain => {
+            
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
 });
