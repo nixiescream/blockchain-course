@@ -49,7 +49,7 @@ app.get('/mine', (req, res) => {
     const lastBlock = ephemerum.getLastBlock();
     const previousBlockHash = lastBlock['hash'];
     const currentBlockData = {
-        transaction: ephemerum.pendingTransactions,
+        transactions: ephemerum.pendingTransactions,
         index: lastBlock['index'] + 1
     };
     const nonce = ephemerum.proofOfWork(previousBlockHash, currentBlockData);
