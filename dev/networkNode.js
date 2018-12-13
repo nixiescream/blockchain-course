@@ -18,8 +18,31 @@ app.get('/blockchain', (req, res) => {
 });
 
 app.post('/transaction', (req, res) => {
-    const blockIndex = ephemerum.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+    const newTransaction = req.body;
+    const blockIndex = ephemerum.addTransactionToPendingTransactions(newTransaction);
     res.json({note: `Transaction will be added in block ${blockIndex}.`});
+});
+
+app.post('/transaction/broadcast', (req, res) => {
+    const newTransaction = ephemerum.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+    ephemerum.addTransactionToPendingTransactions(newTransaction);
+
+    const requestPromises = [];
+    ephemerum.networkNodes.forEach(networkNodeURL => {
+        const requestOptions = {
+            uri: networkNodeURL + '/transaction',
+            method: 'POST',
+            body: newTransaction,
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises)
+        .then(() => {
+            res.json({note: 'Transaction created and broadcast successfully.'});
+        });
 });
 
 app.get('/mine', (req, res) => {
@@ -31,14 +54,62 @@ app.get('/mine', (req, res) => {
     };
     const nonce = ephemerum.proofOfWork(previousBlockHash, currentBlockData);
     const blockHash = ephemerum.hashBlock(previousBlockHash, currentBlockData, nonce);
-
-    ephemerum.createNewTransaction(12.5, '00', nodeAddress);
-
     const newBlock = ephemerum.createNewBlock(nonce, previousBlockHash, blockHash);
-    res.json({
-        note: 'New block mined successfully.',
-        block: newBlock
+
+    const requestPromises = [];
+    ephemerum.networkNodes.forEach(networkNodeURL => {
+        const requestOptions = {
+            uri: networkNodeURL + '/receive-new-block',
+            method: 'POST',
+            body: {newBlock},
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
     });
+
+    Promise.all(requestPromises)
+    .then(() => {
+        const requestOptions = {
+            uri: ephemerum.currentNodeURL + '/transaction/broadcast',
+            method: 'POST',
+            body: {
+                amount: 12.5,
+                sender: '00',
+                recipient: nodeAddress
+            },
+            json: true
+        };
+
+        return rp(requestOptions);
+    })
+    .then(() => {
+        res.json({
+            note: 'New block mined & broadcast successfully.',
+            block: newBlock
+        });
+    });
+});
+
+app.post('/receive-new-block', (req, res) => {
+    const newBlock = req.body.newBlock;
+    const lastBlock = ephemerum.getLastBlock();
+    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+    const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
+
+    if(correctHash && correctIndex) {
+        ephemerum.chain.push(newBlock);
+        ephemerum.pendingTransactions = [];
+        res.json({
+            note: `New block received and accepted.`,
+            newBlock
+        });
+    } else {
+        res.json({
+            note: `New block rejected.`,
+            newBlock
+        });
+    }
 });
 
 app.post('/register-and-broadcast-network', (req, res) => {
