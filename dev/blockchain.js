@@ -71,17 +71,17 @@ class Blockchain {
         for(let i = 1; i < blockchain.length; i++) {
             const currentBlock = blockchain[i];
             const previousBlock = blockchain[i - 1];
-            const blockHash = this.hashBlock(previousBlock.hash, { transactions: currentBlock.transactions, index: currentBlock.index }, currentBlock.nonce);
+            const blockHash = this.hashBlock(previousBlock['hash'], { transactions: currentBlock['transactions'], index: currentBlock['index'] }, currentBlock['nonce']);
 
             if(blockHash.substring(0, 4) !== '0000') validChain = false;
-            if(currentBlock.previousBlockHash !== previousBlock.hash) validChain = false;
+            if(currentBlock['previousBlockHash'] !== previousBlock['hash']) validChain = false;
         };
 
         const genesisBlock = blockchain[0];
-        const correctNonce = genesisBlock.nonce === 93833;
-        const correctPreviousBlockHash = genesisBlock.previousBlockHash === '0';
-        const correctHash = genesisBlock.hash === '0';
-        const correctTransactions = genesisBlock.transactions.length === 0;
+        const correctNonce = genesisBlock['nonce'] === 93833;
+        const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0';
+        const correctHash = genesisBlock['hash'] === '0';
+        const correctTransactions = genesisBlock['transactions'].length === 0;
 
         if(!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) validChain = false;
 
