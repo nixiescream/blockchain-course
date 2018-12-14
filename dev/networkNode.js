@@ -114,7 +114,7 @@ app.post('/receive-new-block', (req, res) => {
 
 app.post('/register-and-broadcast-network', (req, res) => {
     const newNodeURL = req.body.newNodeURL;
-    if(ephemerum.networkNodes.indexOf(newNodeURL) === -1) ephemerum.networkNodes.push(newNodeURL);
+    if(!ephemerum.networkNodes.includes(newNodeURL)) ephemerum.networkNodes.push(newNodeURL);
 
     const regNodesPromises = [];
     ephemerum.networkNodes.forEach(networkNodeURL => {
@@ -146,7 +146,7 @@ app.post('/register-and-broadcast-network', (req, res) => {
 
 app.post('/register-node', (req, res) => {
     const newNodeURL = req.body.newNodeURL;
-    const nodeNotAlreadyPresent = ephemerum.networkNodes.indexOf(newNodeURL) === -1;
+    const nodeNotAlreadyPresent = !ephemerum.networkNodes.includes(newNodeURL);
     const notCurrentNode = ephemerum.currentNodeURL !== newNodeURL;
     if(nodeNotAlreadyPresent && notCurrentNode) ephemerum.networkNodes.push(newNodeURL);
     res.json({ note: `New node registered successfully.` });
@@ -155,7 +155,7 @@ app.post('/register-node', (req, res) => {
 app.post('/register-nodes-bulk', (req, res) => {
     const allNetworkNodes = req.body.allNetworkNodes;
     allNetworkNodes.forEach(networkNodeURL => {
-        const nodeNotAlreadyPresent = ephemerum.networkNodes.indexOf(networkNodeURL) === -1;
+        const nodeNotAlreadyPresent = !ephemerum.networkNodes.includes(networkNodeURL);
         const notCurrentNode = ephemerum.currentNodeURL !== networkNodeURL;
         if(nodeNotAlreadyPresent && notCurrentNode) ephemerum.networkNodes.push(networkNodeURL);
     });
@@ -178,10 +178,47 @@ app.get('/consensus', (req, res) => {
     Promise.all(requestPromises)
     .then(blockchains => {
         const currentChainLength = ephemerum.chain.length;
+        let maxChainLength = currentChainLength;
+        let newLongestChain = null;
+        let newPendingTransactions = null;
         blockchains.forEach(blockchain => {
-            
+            if(blockchain.chain.length > maxChainLength) {
+                maxChainLength = blockchain.chain.length;
+                newLongestChain = blockchain.chain;
+                newPendingTransactions = blockchain.pendingTransactions;
+            };
         });
+
+        if(!newLongestChain || (newLongestChain && !ephemerum.chainIsValid(newLongestChain))) {
+            res.json({
+                note: 'Current chain has not been replaced.',
+                chain: ephemerum.chain
+            });
+        } else {
+            ephemerum.chain = newLongestChain;
+            ephemerum.pendingTransactions = newPendingTransactions;
+            res.json({
+                note: 'This chain has been replaced.',
+                chain: ephemerum.chain
+            });
+        }
     });
+});
+
+app.get('/block/:blockHash', (req, res) => {
+    const blockHash = req.params.blockHash;
+    const correctBlock = ephemerum.getBlock(blockHash);
+    res.json({
+        block: correctBlock
+    });
+});
+
+app.get('transaction/:transactionId', (req, res) => {
+
+});
+
+app.get('/address/:address', (req, res) => {
+
 });
 
 app.listen(port, () => {
