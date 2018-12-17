@@ -213,7 +213,7 @@ app.get('/block/:blockHash', (req, res) => {
     });
 });
 
-app.get('transaction/:transactionId', (req, res) => {
+app.get('/transaction/:transactionId', (req, res) => {
     const transactionId = req.params.transactionId;
     const transactionData = ephemerum.getTransaction(transactionId);
     res.json({
@@ -223,7 +223,11 @@ app.get('transaction/:transactionId', (req, res) => {
 });
 
 app.get('/address/:address', (req, res) => {
-
+    const address = req.params.address;
+    const addressData = ephemerum.getAddressData(address);
+    res.json({
+        addressData
+    });
 });
 
 app.listen(port, () => {
